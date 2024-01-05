@@ -1,36 +1,31 @@
-﻿@page "/"
+﻿@page "/page-without-query-param"
 
+<a href="?HomeQueryParameter=555">Go to home</a>
 <a href="page?PageQueryParameter=1111">Go to page with query param</a>
-<a href="page-without-query-param">Go to page without query param</a>
 
 <table>
     <tr>
         <th>Timestamp (ticks)</th>
         <th>Lifecycle event name</th>
-        <th>Parameter value</th>
     </tr>
 
-    @foreach (var value in HomeQueryParameterValues.OrderBy(x => x.Timestamp))
+    @foreach (var value in PageQueryParameterValues.OrderBy(x => x.Timestamp))
     {
         <tr>
             <td>@value.Timestamp.Ticks</td>
             <td>@value.EventName</td>
-            <td>@(value.ParameterValue.HasValue ? @value.ParameterValue.Value : "null")</td>
         </tr>
     }
 
 </table>
 
 @code {
-    [SupplyParameterFromQuery]
-    public int? HomeQueryParameter { get; set; }
-
-    public List<(DateTimeOffset Timestamp, string EventName, int? ParameterValue)> HomeQueryParameterValues { get; } = new();
+    public List<(DateTimeOffset Timestamp, string EventName)> PageQueryParameterValues { get; } = new();
 
     protected override void OnParametersSet() => _Track();
     protected override void OnInitialized() => _Track();
     protected override void OnAfterRender(bool firstRender) => _Track();
 
     private void _Track([System.Runtime.CompilerServices.CallerMemberName] string? caller = null) =>
-        HomeQueryParameterValues.Add((DateTimeOffset.Now, caller!, HomeQueryParameter));
+        PageQueryParameterValues.Add((DateTimeOffset.Now, caller!));
 }
