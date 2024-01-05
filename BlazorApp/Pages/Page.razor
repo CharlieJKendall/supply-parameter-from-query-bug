@@ -1,0 +1,23 @@
+﻿@page "/page"
+
+<a href="?HomeQueryParameter=555">Go to home</a>
+
+<ul>
+    @foreach (var value in PageQueryParameterValues)
+    {
+        <li>Value: @(value.HasValue ? @value.Value : "null")</li>
+    }
+</ul>
+
+@code {
+    [SupplyParameterFromQuery]
+    public int? PageQueryParameter { get; set; }
+
+    public List<int?> PageQueryParameterValues { get; } = new();
+
+    protected override Task OnParametersSetAsync()
+    {
+        PageQueryParameterValues.Add(PageQueryParameter);
+        return Task.CompletedTask;
+    }
+}
