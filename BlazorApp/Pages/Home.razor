@@ -2,22 +2,35 @@
 
 <a href="page?PageQueryParameter=1111">Go to page</a>
 
-<ul>
-    @foreach (var value in HomeQueryParameterValues)
+
+<table>
+    <tr>
+        <th>Timestamp (ticks)</th>
+        <th>Lifecycle event name</th>
+        <th>Parameter value</th>
+    </tr>
+
+    @foreach (var value in HomeQueryParameterValues.OrderBy(x => x.Timestamp))
     {
-        <li>Value: @(value.HasValue ? @value.Value : "null")</li>
+        <tr>
+            <td>@value.Timestamp.Ticks</td>
+            <td>@value.EventName</td>
+            <td>@(value.ParameterValue.HasValue ? @value.ParameterValue.Value : "null")</td>
+        </tr>
     }
-</ul>
+
+</table>
 
 @code {
     [SupplyParameterFromQuery]
     public int? HomeQueryParameter { get; set; }
 
-    public List<int?> HomeQueryParameterValues { get; } = new();
+    public List<(DateTimeOffset Timestamp, string EventName, int? ParameterValue)> HomeQueryParameterValues { get; } = new();
 
-    protected override Task OnParametersSetAsync()
-    {
-        HomeQueryParameterValues.Add(HomeQueryParameter);
-        return Task.CompletedTask;
-    }
+    protected override void OnParametersSet() => _Track();
+    protected override void OnInitialized() => _Track();
+    protected override void OnAfterRender(bool firstRender) => _Track();
+
+    private void _Track([System.Runtime.CompilerServices.CallerMemberName] string? caller = null) =>
+        HomeQueryParameterValues.Add((DateTimeOffset.Now, caller!, HomeQueryParameter));
 }
